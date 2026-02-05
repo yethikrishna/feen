@@ -18,6 +18,7 @@ RUN pnpm prisma generate
 COPY . .
 
 # Build the application
+ENV SKIP_ENV_VALIDATION=true
 RUN pnpm build
 
 # Production stage
@@ -31,12 +32,15 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files
+# Copy necessary files from builder
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copy Prisma generated client (pnpm puts it in a different location)
+COPY --from=builder /app/node_modules/.pnpm/@prisma+client*/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Set ownership
 RUN chown -R nextjs:nodejs /app
