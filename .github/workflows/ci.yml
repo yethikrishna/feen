@@ -97,7 +97,7 @@ jobs:
           DATABASE_URL: postgresql://feen:feen_test_password@localhost:5432/feen_test
 
       - name: Run tests
-        run: pnpm test --coverage
+        run: pnpm test:coverage
         env:
           DATABASE_URL: postgresql://feen:feen_test_password@localhost:5432/feen_test
           REDIS_URL: redis://localhost:6379
@@ -143,14 +143,8 @@ jobs:
           scan-type: 'fs'
           scan-ref: '.'
           severity: 'CRITICAL,HIGH'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'trivy-results.sarif'
-        if: always() && hashFiles('trivy-results.sarif') != ''
+          format: 'table'
+          exit-code: '0'
 
   # ==========================================
   # Build
